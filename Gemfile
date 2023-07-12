@@ -54,8 +54,10 @@ group :development, :test do
 end
 
 group :development do
-  gem 'guard-livereload'
   gem 'rack-livereload'
+  gem "hotwire-livereload", "~> 1.2"
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem "pry-remote"
 
 
   # Use console on exceptions pages [https://github.com/rails/web-console]
@@ -69,11 +71,13 @@ group :development do
 end
 
 group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
   gem "selenium-webdriver"
   gem "webdrivers"
+  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
+  gem "capybara"
+
 end
 
 gem "tailwindcss-rails", "~> 2.0"
 gem 'simple_form', '~> 5.2'
+gem 'http'
