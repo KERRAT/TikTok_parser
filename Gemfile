@@ -54,6 +54,10 @@ group :development, :test do
 end
 
 group :development do
+  gem 'guard-livereload'
+  gem 'rack-livereload'
+
+
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
@@ -72,5 +76,4 @@ group :test do
 end
 
 gem "tailwindcss-rails", "~> 2.0"
-gem 'guard-livereload'
-gem 'rack-livereload'
+gem 'simple_form', '~> 5.2'

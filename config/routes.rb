@@ -5,4 +5,7 @@ Rails.application.routes.draw do
   # root "articles#index"
 
   root to: "homepage#home"
+
+  get 'search', to: 'homepage#search'
+
 end
