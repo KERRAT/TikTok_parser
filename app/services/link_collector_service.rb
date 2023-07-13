@@ -1,4 +1,4 @@
-class SearchService
+class LinkCollectorService
   SEARCH_SELECTOR = '[data-e2e="search-card-user-link"]'.freeze
   CHALLENGE_SELECTOR = "[data-e2e='challenge-item-avatar']".freeze
   VIDEO_SELECTOR = "[data-e2e='video-user-name']".freeze

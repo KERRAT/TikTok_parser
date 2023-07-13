@@ -3,7 +3,7 @@ class HomepageController < ApplicationController
   end
 
   def search
-    @results = SearchService.new(search_params).call
+    @results = LinkCollectorService.new(search_params).call
     @query = search_params[:query]
     @type = search_params[:type]
     render :home
