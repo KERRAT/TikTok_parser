@@ -83,3 +83,4 @@ gem "webdrivers"
 gem "tailwindcss-rails", "~> 2.0"
 gem 'simple_form', '~> 5.2'
 gem 'http'
+gem 'pg'
