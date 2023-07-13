@@ -1,27 +1,79 @@
 class SearchService
   def initialize(params)
-    @search_params = params
+    @type = params[:type]
+    @query = params[:query]
+    @amount = 200
   end
 
   def call
-    tag = @search_params[:query]
-    amount = @search_params[:amount]
-    encoded_tag = CGI.escape(tag)
-    url = URI("https://www.tiktok.com/tag/#{encoded_tag}")
+    url = generate_link
+    process_page(url)
+  end
 
+  private
 
-    response = HTTP.get(url)
-    doc = Nokogiri::HTML(response.body.to_s)
+  def process_page(url)
+    driver = SeleniumDriver.instance.get_driver
+    driver.navigate.to(url)
+    sleep(3) if @type == "search"
+    links = Set.new
 
-    # Array of possible values for data-e2e attribute
-    data_e2e_values = ['challenge-item-username', 'video-user-name', 'search-card-user-link']
+    scroll_and_collect_links(driver, links)
+  end
 
-    # Find all elements with any of the data-e2e values and get their parent 'a' link hrefs
-    links = data_e2e_values.flat_map do |value|
-      elements = doc.css("[data-e2e='#{value}']")
-      elements.map { |element| element.ancestors('a').first['href'] if element }
+  def scroll_and_collect_links(driver, links)
+    previous_scroll_height = driver.execute_script('return document.body.scrollHeight')
+
+    while links.count < @amount.to_i
+      driver.execute_script("window.scrollTo(#{previous_scroll_height}, document.body.scrollHeight)")
+      new_scroll_height = monitor_scroll(driver, previous_scroll_height)
+      new_links = extract_new_links(driver)
+
+      links.merge(new_links.compact)
+
+      break if new_scroll_height == previous_scroll_height || links.count >= @amount.to_i
+
+      previous_scroll_height = new_scroll_height
     end
 
-    links.compact
+    links.take(@amount.to_i)
+  end
+
+  def monitor_scroll(driver, previous_scroll_height)
+    start_time = Time.now
+    new_scroll_height = nil
+
+    loop do
+      sleep(1)
+      new_scroll_height = driver.execute_script('return document.body.scrollHeight')
+      break if new_scroll_height != previous_scroll_height || Time.now - start_time > 10
+    end
+    new_scroll_height
+  end
+
+  def extract_new_links(driver)
+    doc = Nokogiri::HTML(driver.page_source)
+
+    if @type == "search"
+      extract_links(doc, '[data-e2e="search-card-user-link"]')
+    else
+      extract_links(doc, "[data-e2e='challenge-item-avatar']")
+    end
+  end
+
+  def extract_links(doc, selector)
+    elements = doc.css(selector)
+    elements.map { |element| element['href'] if element }
+  end
+
+  def generate_link
+    encoded_query = CGI.escape(@query)
+
+    if @type == 'tag'
+      URI("https://www.tiktok.com/tag/#{encoded_query}")
+    elsif @type == 'search'
+      timestamp = (Time.now.to_f * 1000).to_i
+      URI("https://www.tiktok.com/search?q=#{encoded_query}&t=#{timestamp}")
+    end
   end
 end

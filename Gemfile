@@ -78,6 +78,8 @@ group :test do
 
 end
 
+gem "selenium-webdriver"
+gem "webdrivers"
 gem "tailwindcss-rails", "~> 2.0"
 gem 'simple_form', '~> 5.2'
 gem 'http'
