@@ -10,7 +10,7 @@ class LinkCollectorService
   end
 
   def call
-    url = generate_link
+    url = generate_url
     process_page(url)
   end
 
@@ -79,7 +79,7 @@ class LinkCollectorService
     end
   end
 
-  def generate_link
+  def generate_url
     encoded_query = CGI.escape(@query)
 
     if @type == 'hashtag'
