@@ -2,7 +2,7 @@ class SearchService
   def initialize(params)
     @type = params[:type]
     @query = params[:query]
-    @amount = 200
+    @amount = params[:amount]
   end
 
   def call

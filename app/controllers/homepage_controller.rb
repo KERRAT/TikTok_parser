@@ -12,6 +12,6 @@ class HomepageController < ApplicationController
   private
 
   def search_params
-    params.require(:search).permit(:query, :type)
+    params.require(:search).permit(:query, :type, :amount)
   end
 end
