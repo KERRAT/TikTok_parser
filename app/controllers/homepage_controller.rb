@@ -4,14 +4,15 @@ class HomepageController < ApplicationController
 
   def search
     @results = LinkCollectorService.new(search_params).call
+
     @query = search_params[:query]
-    @type = search_params[:type]
+    @amount = search_params[:amount]
     render :home
   end
 
   private
 
   def search_params
-    params.require(:search).permit(:query, :type, :amount)
+    params.require(:search).permit(:query, :amount)
   end
 end

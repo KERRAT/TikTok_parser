@@ -4,7 +4,7 @@ class LinkCollectorService
   VIDEO_SELECTOR = "[data-e2e='video-user-name']".freeze
 
   def initialize(params)
-    @type = params[:type]
+    @type = params[:query].first == '#' ? 'hashtag' : 'search'
     @query = params[:query]
     @amount = params[:amount].to_i
   end
@@ -82,7 +82,7 @@ class LinkCollectorService
   def generate_link
     encoded_query = CGI.escape(@query)
 
-    if @type == 'tag'
+    if @type == 'hashtag'
       "https://www.tiktok.com/tag/#{encoded_query}"
     elsif @type == 'search'
       timestamp = (Time.now.to_f * 1000).to_i
