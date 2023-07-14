@@ -13,14 +13,31 @@
   </head>
 
   <body>
+  <nav class="bg-gray-600">
+    <div class="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div class="relative flex items-center justify-between h-16">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+        </div>
+        <div class="flex items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="hidden sm:block sm:ml-6">
+            <div class="flex space-x-4">
+              <div class="px-3 py-2 text-sm font-medium text-white rounded-md">
+                <%= link_to 'Home', root_path, class: 'hover:text-gray-300' %>
+              </div>
+              <div class="px-3 py-2 text-sm font-medium text-white rounded-md">
+                <%= link_to 'Users', users_path, class: 'hover:text-gray-300' %>
+              </div>
+              <div class="px-3 py-2 text-sm font-medium text-white rounded-md">
+                <%= link_to 'Social Networks', social_networks_path, class: 'hover:text-gray-300' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
     <main class="container flex px-5 mx-auto mt-4">
-    <nav>
-      <ul>
-        <li><%= link_to 'Home', root_path %></li>
-        <li><%= link_to 'Users', users_path %></li>
-        <li><%= link_to 'Social Networks', social_networks_path %></li>
-      </ul>
-    </nav>
       <%= yield %>
     </main>
   </body>
