@@ -7,6 +7,8 @@ class UserProfileParserService
 
 
 
+
+
   def initialize(user_links)
     @user_links = user_links
   end
@@ -65,9 +67,12 @@ class UserProfileParserService
     match ? match[0] : nil
   end
 
-  def extract_socials(doc, bio, base_links)
+  def extract_socials(doc)
     element = doc.at_css('a[data-e2e="user-link"] span')
     link = element.text.strip if element
+
+    base_links = SocialNetwork.pluck(:name, :base_link).to_h
+
     social = base_links.select {|name, base_link| link.include?(base_link)}.keys.first
     { social => link }
   end
