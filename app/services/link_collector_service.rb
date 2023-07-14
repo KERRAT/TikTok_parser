@@ -40,14 +40,14 @@ class LinkCollectorService
       previous_scroll_height = new_scroll_height
     end
 
-    links.take(@amount)
+    links.take(@amount).compact
   end
 
   def monitor_scroll(driver, previous_scroll_height)
     start_time = Time.now
 
     loop do
-      sleep(1)
+      sleep(0.5)
       new_scroll_height = driver.execute_script('return document.body.scrollHeight')
       return new_scroll_height if ((new_scroll_height - previous_scroll_height).abs > 200) || Time.now - start_time > 5
     end

@@ -5,6 +5,10 @@ class UserProfileParserService
   BIO_SELECTOR = 'h2[data-e2e="user-bio"]'.freeze
   VIEWS_COUNT_SELECTOR = 'strong[data-e2e="video-views"]'.freeze
   EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
+  SOCIALS_SELECTOR = 'a[data-e2e="user-link"] span'.freeze
+  HTTPS_ = 'https://'.freeze
+  HTTP_ = 'http://'.freeze
+
 
   def initialize(user_links)
     @user_links = user_links
@@ -14,7 +18,7 @@ class UserProfileParserService
     @user_links.map do |user_link|
       url = generate_url(user_link)
       process_profile(url)
-    end.compact
+    end
   end
 
   private
@@ -98,38 +102,46 @@ class UserProfileParserService
 
 
   def extract_socials(doc, bio)
-    element = doc.at_css('a[data-e2e="user-link"] span')
+    element = doc.at_css(SOCIALS_SELECTOR)
 
     if element
-      link = element.text.strip
-      link = 'https://' + link unless link.start_with?('http://', 'https://')
+      link = prepend_https(element.text.strip)
     end
 
     base_links = SocialNetwork.pluck(:name, :base_link).to_h
-    social_links = {}
-
-    base_links.each do |name, base_link|
-      regex = Regexp.new("(http://|https://)?#{Regexp.escape(base_link)}\\S*", "i")
-      match = bio.match(regex)
-
-      if match
-        found_link = match[0]
-        found_link = 'https://' + found_link unless found_link.start_with?('http://', 'https://')
-        social_links[name] = found_link
-      end
-    end
+    social_links = extract_links_from_bio(bio, base_links)
 
     if link
       base_link_entry = base_links.find { |name, base_link| link.include?(base_link) }
       if base_link_entry
         social_link_from_profile = base_link_entry.first
-        social_links[social_link_from_profile] = ['https://' + link] if !social_links.key?(social_link_from_profile)
+        social_links[social_link_from_profile] = [link] unless social_links.key?(social_link_from_profile)
       end
     end
 
     social_links
   end
 
+  def extract_links_from_bio(bio, base_links)
+    return {} unless bio
+
+    base_links.each_with_object({}) do |(name, base_link), links|
+      regex = regex_for_link(base_link)
+      match = bio.match(regex)
+
+      if match
+        links[name] = prepend_https(match[0])
+      end
+    end
+  end
+
+  def prepend_https(link)
+    link.start_with?(HTTP_, HTTPS_) ? link : HTTPS_ + link
+  end
+
+  def regex_for_link(base_link)
+    Regexp.new("(#{HTTP_}|#{HTTPS_})?#{Regexp.escape(base_link)}\\S*", "i")
+  end
 
   def generate_url(user_link)
     "https://www.tiktok.com#{user_link}"
