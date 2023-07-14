@@ -5,11 +5,12 @@ class HomepageController < ApplicationController
   def search
     @links_to_users = LinkCollectorService.new(search_params).call
 
-    @results = UserProfileParserService.new(@links_to_users).call
+    @users = UserProfileParserService.new(@links_to_users).call
 
     @query = search_params[:query]
     @amount = search_params[:amount]
-    render :home
+
+    render :index
   end
 
   private

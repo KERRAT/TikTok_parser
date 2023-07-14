@@ -1,4 +1,4 @@
-<div class="flex items-center justify-center mx-auto my-auto">
+<div class="flex flex-col items-center justify-center mx-auto my-auto">
     <div class="w-full max-w-xs">
         <div class="px-8 pt-6 pb-8 bg-white rounded shadow-md">
             <%= simple_form_for :search, url: "/search", method: :get do |f| %>
@@ -23,18 +23,39 @@
                     class: 'w-full px-4 py-2 mb-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline' %>
                 </div>
             <% end %>
-
-            <% if @results %>
-                <div class="flex flex-col mt-6">
-                    <h3>Number of results: <%=@results.count%></h3>
-                    <h2>Search Results:</h2>
-                    <% @results.each do |result| %>
-                        <div class="p-2 mb-2 border border-gray-200 rounded">
-                            <%= result %>
-                        </div>
-                    <% end %>
-                </div>
-            <% end %>
         </div>
     </div>
+    <% if @users %>
+        <table class="w-full mt-4 mb-4 bg-white rounded shadow-md text-md">
+            <tbody>
+            <tr class="border-b">
+                <th class="p-3 px-5 text-left">Title</th>
+                <th class="p-3 px-5 text-left">Subtitle</th>
+                <th class="p-3 px-5 text-left">Followers</th>
+                <th class="p-3 px-5 text-left">Views On Video</th>
+                <th class="p-3 px-5 text-left">Bio</th>
+                <th class="p-3 px-5 text-left">Email</th>
+                <th class="p-3 px-5 text-left">Social Networks</th>
+            </tr>
+            <% @users.each do |user| %>
+                <tr class="bg-gray-100 border-b hover:bg-blue-100">
+                <td class="p-3 px-5"><%= user.title %></td>
+                <td class="p-3 px-5"><%= user.subtitle %></td>
+                <td class="p-3 px-5"><%= user.followers %></td>
+                <td class="p-3 px-5"><%= user.views_on_video %></td>
+                <td class="p-3 px-5"><%= user.bio %></td>
+                <td class="p-3 px-5"><%= user.email %></td>
+                <td class="p-3 px-5"><%= user.subtitle %></td>
+                <td class="p-3 px-5">
+                    <% user.user_socials.each do |user_social| %>
+                    <p>
+                        <%= link_to user_social.social_network.name, user_social.url, class: "text-blue-500 hover:text-blue-800" %>
+                    </p>
+                    <% end %>
+                </td>
+                </tr>
+            <% end %>
+            </tbody>
+        </table>
+    <% end %>
 </div>

@@ -1,23 +1,22 @@
-<div class="max-w-lg mx-auto my-auto">
   <table class="w-full mb-4 bg-white rounded shadow-md text-md">
     <tbody>
       <tr class="border-b">
         <th class="p-3 px-5 text-left">Title</th>
+        <th class="p-3 px-5 text-left">Subtitle</th>
         <th class="p-3 px-5 text-left">Followers</th>
         <th class="p-3 px-5 text-left">Views On Video</th>
         <th class="p-3 px-5 text-left">Bio</th>
         <th class="p-3 px-5 text-left">Email</th>
-        <th class="p-3 px-5 text-left">Subtitle</th>
         <th class="p-3 px-5 text-left">Social Networks</th>
       </tr>
       <% @users.each do |user| %>
         <tr class="bg-gray-100 border-b hover:bg-blue-100">
           <td class="p-3 px-5"><%= user.title %></td>
+          <td class="p-3 px-5"><%= user.subtitle %></td>
           <td class="p-3 px-5"><%= user.followers %></td>
           <td class="p-3 px-5"><%= user.views_on_video %></td>
           <td class="p-3 px-5"><%= user.bio %></td>
           <td class="p-3 px-5"><%= user.email %></td>
-          <td class="p-3 px-5"><%= user.subtitle %></td>
           <td class="p-3 px-5">
             <% user.user_socials.each do |user_social| %>
               <p>
@@ -29,4 +28,3 @@
       <% end %>
     </tbody>
   </table>
-</div>
