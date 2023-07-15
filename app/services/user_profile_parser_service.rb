@@ -5,6 +5,7 @@ class UserProfileParserService
   BIO_SELECTOR = 'h2[data-e2e="user-bio"]'.freeze
   VIEWS_COUNT_SELECTOR = 'strong[data-e2e="video-views"]'.freeze
   EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
+  NON_EMAIL_CHAR_SELECTOR = /[^a-zA-Z0-9.@+\-_\s]/
   SOCIALS_SELECTOR = 'a[data-e2e="user-link"] span'.freeze
   HTTPS_ = 'https://'.freeze
   HTTP_ = 'http://'.freeze
@@ -18,7 +19,7 @@ class UserProfileParserService
     @user_links.map do |user_link|
       url = generate_url(user_link)
       process_profile(url)
-    end
+    end.compact
   end
 
   private
@@ -29,12 +30,14 @@ class UserProfileParserService
 
     title = extract_title(doc)
 
-    user = User.find_or_initialize_by(title: title) || User.new(title: title)
+    return nil unless title
 
-    # Extract the rest of the data
+    user = User.find_or_initialize_by(title: title)
+
     subtitle = extract_subtitle(doc)
     followers_count = extract_followers_count(doc)
     views_on_video = extract_view_count(doc)
+    tiktok_link = url
     bio = extract_bio(doc)
     email = extract_email(bio)
     socials = extract_socials(doc, bio)
@@ -44,7 +47,8 @@ class UserProfileParserService
       followers: followers_count,
       views_on_video: views_on_video,
       bio: bio,
-      email: email
+      tiktok_link: tiktok_link,
+      email:  email
     )
 
     socials.each do |name, url|
@@ -70,7 +74,7 @@ class UserProfileParserService
   def extract_followers_count(doc)
     element = doc.at_css(FOLLOWERS_COUNT_SELECTOR)
     human_number = element.text.strip if element
-    NumberConversionService.human_to_number(human_number)
+    NumberConversion.human_to_number(human_number)
   end
 
   def extract_bio(doc)
@@ -82,7 +86,7 @@ class UserProfileParserService
     elements = doc.css(VIEWS_COUNT_SELECTOR)
     total_views = 0
     elements.each do |element|
-      view_count = NumberConversionService.human_to_number(element.text.strip)
+      view_count = NumberConversion.human_to_number(element.text.strip)
       total_views += view_count
     end
 
@@ -92,14 +96,10 @@ class UserProfileParserService
   end
 
   def extract_email(bio)
-    if bio
-      match = bio.match(EMAIL_REGEX)
-      match ? match[0] : nil
-    else
-      nil
-    end
+    clean_bio = bio.gsub(NON_EMAIL_CHAR_SELECTOR, ' ')
+    match = clean_bio.match(EMAIL_REGEX)
+    match ? match[0] : nil
   end
-
 
   def extract_socials(doc, bio)
     element = doc.at_css(SOCIALS_SELECTOR)
@@ -115,7 +115,7 @@ class UserProfileParserService
       base_link_entry = base_links.find { |name, base_link| link.include?(base_link) }
       if base_link_entry
         social_link_from_profile = base_link_entry.first
-        social_links[social_link_from_profile] = [link] unless social_links.key?(social_link_from_profile)
+        social_links[social_link_from_profile] = link unless social_links.key?(social_link_from_profile)
       end
     end
 
@@ -123,8 +123,6 @@ class UserProfileParserService
   end
 
   def extract_links_from_bio(bio, base_links)
-    return {} unless bio
-
     base_links.each_with_object({}) do |(name, base_link), links|
       regex = regex_for_link(base_link)
       match = bio.match(regex)

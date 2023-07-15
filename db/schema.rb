@@ -10,21 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_14_010008) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_14_231625) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "social_networks", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "base_link"
+    t.string "base_link", null: false
   end
 
   create_table "user_socials", force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "social_network_id"
-    t.string "url"
+    t.string "url", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["social_network_id"], name: "index_user_socials_on_social_network_id"
@@ -40,6 +40,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_14_010008) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "subtitle", null: false
+    t.string "tiktok_link", null: false
   end
 
   add_foreign_key "user_socials", "social_networks"

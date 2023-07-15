@@ -1,4 +1,4 @@
-class NumberConversionService
+class NumberConversion
   def self.human_to_number(human)
     return human unless human.is_a? String
     return human if human.blank?
