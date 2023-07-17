@@ -1,65 +1,39 @@
-class UserProfileParserService
+class ProfilePageParserService
   TITLE_SELECTOR = 'h1[data-e2e="user-title"]'.freeze
   SUBTITLE_SELECTOR = 'h2[data-e2e="user-subtitle"]'.freeze
   FOLLOWERS_COUNT_SELECTOR = 'strong[data-e2e="followers-count"]'.freeze
   BIO_SELECTOR = 'h2[data-e2e="user-bio"]'.freeze
   VIEWS_COUNT_SELECTOR = 'strong[data-e2e="video-views"]'.freeze
-  EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
-  NON_EMAIL_CHAR_SELECTOR = /[^a-zA-Z0-9.@+\-_\s]/
+  EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.freeze
+  NON_EMAIL_CHAR_SELECTOR = /[^a-zA-Z0-9.@+\-_\s]/.freeze
   SOCIALS_SELECTOR = 'a[data-e2e="user-link"] span'.freeze
   HTTPS_ = 'https://'.freeze
   HTTP_ = 'http://'.freeze
 
-
-  def initialize(user_links)
-    @user_links = user_links
+  def initialize(user_link)
+    @url = generate_url(user_link)
   end
 
   def call
-    @user_links.map do |user_link|
-      url = generate_url(user_link)
-      process_profile(url)
-    end.compact
-  end
-
-  private
-
-  def process_profile(url)
-    response = HTTP.get(url)
+    response = HTTP.get(@url)
     doc = Nokogiri::HTML(response.body.to_s)
 
-    title = extract_title(doc)
-
-    return nil unless title
-
-    user = User.find_or_initialize_by(title: title)
-
-    subtitle = extract_subtitle(doc)
-    followers_count = extract_followers_count(doc)
-    views_on_video = extract_view_count(doc)
-    tiktok_link = url
     bio = extract_bio(doc)
-    email = extract_email(bio)
-    socials = extract_socials(doc, bio)
 
-    user.update(
-      subtitle: subtitle,
-      followers: followers_count,
-      views_on_video: views_on_video,
+    {
+      title: extract_title(doc),
+      subtitle: extract_subtitle(doc),
+      followers_count: extract_followers_count(doc),
+      views_on_video: extract_view_count(doc),
       bio: bio,
-      tiktok_link: tiktok_link,
-      email:  email
-    )
-
-    socials.each do |name, url|
-      social_network = SocialNetwork.find_by(name: name)
-
-      user_social = UserSocial.find_or_initialize_by(user: user, social_network: social_network)
-      user_social.update(url: url)
-    end
-
-    user
+      email: extract_email(bio),
+      socials: extract_socials(doc, bio),
+      tiktok_link: @url
+    }
   end
+
+
+  private
 
   def extract_title(doc)
     element = doc.at_css(TITLE_SELECTOR)
