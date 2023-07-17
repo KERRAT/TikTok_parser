@@ -25,4 +25,6 @@ test:
 
 production:
   <<: *default
-  database: tiktok_parser_production
+  username: masteruser
+  password: <%= ENV['PASSWORD'] %>
+  url: <%= ENV['DATABASE_URL'] %>
