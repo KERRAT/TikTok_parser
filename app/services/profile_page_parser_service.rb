@@ -18,10 +18,6 @@ class ProfilePageParserService
     response = HTTP.get(@url)
     doc = Nokogiri::HTML(response.body.to_s)
 
-    title = extract_title(doc)
-
-    return if title.nil?
-
     bio = extract_bio(doc)
 
     {
