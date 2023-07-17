@@ -4,8 +4,8 @@ class ProfilePageParserService
   FOLLOWERS_COUNT_SELECTOR = 'strong[data-e2e="followers-count"]'.freeze
   BIO_SELECTOR = 'h2[data-e2e="user-bio"]'.freeze
   VIEWS_COUNT_SELECTOR = 'strong[data-e2e="video-views"]'.freeze
-  EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
-  NON_EMAIL_CHAR_SELECTOR = /[^a-zA-Z0-9.@+\-_\s]/
+  EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.freeze
+  NON_EMAIL_CHAR_SELECTOR = /[^a-zA-Z0-9.@+\-_\s]/.freeze
   SOCIALS_SELECTOR = 'a[data-e2e="user-link"] span'.freeze
   HTTPS_ = 'https://'.freeze
   HTTP_ = 'http://'.freeze
@@ -21,7 +21,7 @@ class ProfilePageParserService
     bio = extract_bio(doc)
 
     {
-      title: title,
+      title: extract_title(doc),
       subtitle: extract_subtitle(doc),
       followers_count: extract_followers_count(doc),
       views_on_video: extract_view_count(doc),
