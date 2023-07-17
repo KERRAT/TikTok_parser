@@ -5,7 +5,9 @@ class HomepageController < ApplicationController
   def search
     @links_to_users = LinkCollectorService.new(search_params).call
 
-    @users = UserProfileParserService.new(@links_to_users).call
+    @users = @links_to_users.map do |link|
+      UserProfileUpdaterService.new(link).call
+    end.compact
 
     @query = search_params[:query]
     @amount = search_params[:amount]
